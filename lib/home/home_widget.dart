@@ -31,10 +31,10 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  late SnackBar locationIssuesSnackBar;                                                      
+  late SnackBar locationIssuesSnackBar;
 
   final location = Location();
-  
+
   double? latitude;
   double? longitude;
   DateTime? savedTime;
@@ -82,16 +82,15 @@ class _HomeWidgetState extends State<HomeWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeModel());
-    
+
     location.enableBackgroundMode(enable: true);
 
-    if(FFAppState().latLngDriver != null)
-    {
+    if (FFAppState().latLngDriver != null) {
       latitude = FFAppState().latLngDriver!.latitude;
       longitude = FFAppState().latLngDriver!.longitude;
     }
 
-    locationIssuesSnackBar = SnackBar( 
+    locationIssuesSnackBar = SnackBar(
       content: const Text(
         'Não foi possível obter a localização do dispositivo. Verifique se o GPS encontra-se ativo e se a permissão de acesso foi concedida.',
         style: TextStyle(
@@ -103,9 +102,10 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
 
     () async {
-      await _getLocation().whenComplete( () => currentUserLocationValue = FFAppState().latLngDriver );
+      await _getLocation().whenComplete(
+          () => currentUserLocationValue = FFAppState().latLngDriver);
       setState(() {});
-    } ();
+    }();
 
     savedTime = DateTime.now();
 
@@ -129,7 +129,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      if(!FFAppState().acceptedTermsAndPrivacy) {
+      if (!FFAppState().acceptedTermsAndPrivacy) {
         showConfirmConsentDialog(context);
       }
 
@@ -146,9 +146,8 @@ class _HomeWidgetState extends State<HomeWidget> {
         differenceInSeconds = diff.inSeconds;
 
         if (differenceInMinutes >= 5) {
-
-          if((latitude != null && longitude != null) && (latitude!.truncate() != 0 && longitude!.truncate() != 0))
-          {
+          if ((latitude != null && longitude != null) &&
+              (latitude!.truncate() != 0 && longitude!.truncate() != 0)) {
             savedTime = DateTime.now();
 
             setState(() {
@@ -157,7 +156,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                 routeId: FFAppState().routeSelected.routeId,
                 latitude: FFAppState().latLngDriver?.latitude,
                 longitude: FFAppState().latLngDriver?.longitude,
-                date: DateTime.now().subtract(DateTime.now().timeZoneOffset).subtract(const Duration(hours: 3)),
+                date: DateTime.now()
+                    .subtract(DateTime.now().timeZoneOffset)
+                    .subtract(const Duration(hours: 3)),
                 finish: false,
               ));
             });
@@ -172,13 +173,10 @@ class _HomeWidgetState extends State<HomeWidget> {
           //Verificar se está com rede para realizar chamada para API
           postRoute(false);
           setState(() {});
-        }
-
-        else if((differenceInSeconds % 10) == 0)
-        {
+        } else if ((differenceInSeconds % 10) == 0) {
           connectivityResult = await Connectivity().checkConnectivity();
         }
-        
+
         await Future.delayed(const Duration(milliseconds: 1000));
       }
     });
@@ -194,13 +192,12 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> _getLocation() async {
-
     try {
       // bool serviceEnabled = await location.serviceEnabled();
 
       // if (!serviceEnabled) {
       //   serviceEnabled = await location.requestService();
-        
+
       //   if (!serviceEnabled) {
       //     hasLocationIssues = true;
       //   }
@@ -208,7 +205,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
       // PermissionStatus permissionGranted = await location.hasPermission();
 
-      // if (permissionGranted == PermissionStatus.denied) {   
+      // if (permissionGranted == PermissionStatus.denied) {
       //   permissionGranted = await location.requestPermission();
 
       //   if (permissionGranted != PermissionStatus.granted) {
@@ -218,47 +215,52 @@ class _HomeWidgetState extends State<HomeWidget> {
 
       // if(!hasLocationIssues)
       // {
-        var currentLocation = await location.getLocation();
-    
-        setState(() {
-          latitude = currentLocation.latitude;
-          longitude = currentLocation.longitude;
-          FFAppState().latLngDriver = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-        });
+      var currentLocation = await location.getLocation();
+
+      setState(() {
+        latitude = currentLocation.latitude;
+        longitude = currentLocation.longitude;
+        FFAppState().latLngDriver =
+            LatLng(currentLocation.latitude!, currentLocation.longitude!);
+      });
       // }
-    } 
-    catch (e) {
+    } catch (e) {
       hasLocationIssues = true;
     }
 
-    if(hasLocationIssues) {
+    if (hasLocationIssues) {
       ScaffoldMessenger.of(context).showSnackBar(locationIssuesSnackBar);
       hasLocationIssues = false;
     }
   }
 
-  bool calculateDistanceInMostReadableUnit(LatLng coord1, double lat, double long,) {
-    var distanceInMeters = functions.calculateDistanceInMeters(coord1, lat, long);
+  bool calculateDistanceInMostReadableUnit(
+    LatLng coord1,
+    double lat,
+    double long,
+  ) {
+    var distanceInMeters =
+        functions.calculateDistanceInMeters(coord1, lat, long);
 
-    if(distanceInMeters > 9999) {
+    if (distanceInMeters > 9999) {
       distance = distanceInMeters ~/ 1000;
       unit = "Km";
-    }
-
-    else {
+    } else {
       distance = distanceInMeters;
       unit = "Metros";
     }
 
     return true;
-}
+  }
 
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
     return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus ? FocusScope.of(context).requestFocus(_model.unfocusNode) : FocusScope.of(context).unfocus(),
+      onTap: () => _model.unfocusNode.canRequestFocus
+          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+          : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: Colors.white,
@@ -270,34 +272,39 @@ class _HomeWidgetState extends State<HomeWidget> {
                 Container(
                   width: double.infinity,
                   height: 60.0,
-                  decoration: BoxDecoration( 
+                  decoration: BoxDecoration(
                     color: FlutterFlowTheme.of(context).secondaryBackground,
-                    boxShadow: [ BoxShadow(
-                      color: FlutterFlowTheme.of(context).accent2,
-                      blurRadius: 0.1,
-                      blurStyle: BlurStyle.solid,
-                      )],
+                    boxShadow: [
+                      BoxShadow(
+                        color: FlutterFlowTheme.of(context).accent2,
+                        blurRadius: 0.1,
+                        blurStyle: BlurStyle.solid,
+                      )
+                    ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(12.0, 0.0, 12.0, 0.0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        12.0, 0.0, 12.0, 0.0),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 8.0, 0.0),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
                             child: Image.asset(
-                              'assets/images/image_4.png',
+                              'assets/images/pigma_(1)_1.png',
                               width: 64.0,
                               height: 40.0,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 8.0, 0.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
@@ -318,7 +325,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   ),
                                 ),
                               ),
-
                               Padding(
                                 padding: const EdgeInsets.only(right: 16.0),
                                 child: InkWell(
@@ -327,11 +333,13 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    await launchURL('https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                    await launchURL(
+                                        'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
                                   },
                                   child: FaIcon(
                                     FontAwesomeIcons.whatsapp,
-                                    color: FlutterFlowTheme.of(context).tertiary,
+                                    color:
+                                        FlutterFlowTheme.of(context).tertiary,
                                     size: 28.0,
                                   ),
                                 ),
@@ -344,7 +352,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                                 onTap: () async {
                                   _model.botaoRota = true;
                                   setState(() {
-                                    FFAppState().viagemDisponivel = RouteStruct();
+                                    FFAppState().viagemDisponivel =
+                                        RouteStruct();
                                     FFAppState().cpf = '';
                                     FFAppState().routeSelected = RouteStruct();
                                   });
@@ -369,81 +378,96 @@ class _HomeWidgetState extends State<HomeWidget> {
                     children: [
                       if (!FFAppState().routeSelected.hasRouteId())
                         SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              wrapWithModel(
-                                model: _model.semViagemModel,
-                                updateCallback: () => setState(() {}),
-                                child: const SemViagemWidget(),
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(20.0, 50.0, 20.0, 50.0),
+                            child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            wrapWithModel(
+                              model: _model.semViagemModel,
+                              updateCallback: () => setState(() {}),
+                              child: const SemViagemWidget(),
+                            ),
+                            Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    20.0, 50.0, 20.0, 50.0),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        await launchURL('https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
-                                      },
-                                      text: 'Contatar gestor',
-                                      icon: const FaIcon(
-                                        FontAwesomeIcons.whatsapp,
-                                      ),
-                                      options: FFButtonOptions(
-                                        width: 175.0,
-                                        height: 50.0,
-                                        padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                        color: const Color(0xFF28B446),
-                                        textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                              fontFamily: 'Inter',
-                                              color: Colors.white,
-                                            ),
-                                        elevation: 3.0,
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                          width: 1.0,
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      FFButtonWidget(
+                                        onPressed: () async {
+                                          await launchURL(
+                                              'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                        },
+                                        text: 'Contatar gestor',
+                                        icon: const FaIcon(
+                                          FontAwesomeIcons.whatsapp,
                                         ),
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      ),
-                                    ),
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        setState(() {
-                                          FFAppState().fromRefresh = true;
-                                        });
-                                        context.pushReplacementNamed('codigoAcesso');
-                                      },
-                                      text: 'Atualizar',
-                                      icon: const FaIcon(
-                                        FontAwesomeIcons.arrowsRotate,
-                                      ),
-                                      options: FFButtonOptions(
-                                        width: 175.0,
-                                        height: 50.0,
-                                        padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                                        iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                        color: const Color(0xFF4646B4),
-                                        textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                          fontFamily: 'Inter',
-                                          color: Colors.white,
+                                        options: FFButtonOptions(
+                                          width: 175.0,
+                                          height: 50.0,
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(8.0, 0.0, 8.0, 0.0),
+                                          iconPadding:
+                                              const EdgeInsetsDirectional
+                                                  .fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                          color: const Color(0xFF28B446),
+                                          textStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .override(
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.white,
+                                                  ),
+                                          elevation: 3.0,
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                            width: 1.0,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
                                         ),
-                                        elevation: 3.0,
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                          width: 1.0,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8.0),
                                       ),
-                                    ),
-                                  ]
-                                )
-                              )
-                            ],
-                          )
-                        )
+                                      FFButtonWidget(
+                                        onPressed: () async {
+                                          setState(() {
+                                            FFAppState().fromRefresh = true;
+                                          });
+                                          context.pushReplacementNamed(
+                                              'codigoAcesso');
+                                        },
+                                        text: 'Atualizar',
+                                        icon: const FaIcon(
+                                          FontAwesomeIcons.arrowsRotate,
+                                        ),
+                                        options: FFButtonOptions(
+                                          width: 175.0,
+                                          height: 50.0,
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(8.0, 0.0, 8.0, 0.0),
+                                          iconPadding:
+                                              const EdgeInsetsDirectional
+                                                  .fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                          color: const Color(0xFF4646B4),
+                                          textStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .override(
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.white,
+                                                  ),
+                                          elevation: 3.0,
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                            width: 1.0,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                        ),
+                                      ),
+                                    ]))
+                          ],
+                        ))
                       else
                         Column(
                           mainAxisSize: MainAxisSize.max,
@@ -456,7 +480,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                                     child: MapBoxNavigationView(
                                       options: _navigationOption,
                                       key: const Key("mapStatic"),
-                                      onCreated: (MapBoxNavigationViewController controller) async {
+                                      onCreated: (MapBoxNavigationViewController
+                                          controller) async {
                                         // _controller = controller;
                                         _model.menu = true;
 
@@ -464,16 +489,32 @@ class _HomeWidgetState extends State<HomeWidget> {
 
                                         var index = 1;
 
-                                        wayPoints.add(WayPoint(name: "Inicio", latitude: FFAppState().latLngDriver?.latitude, longitude: FFAppState().latLngDriver?.longitude, isSilent: false));
-                                        
-                                        for (var element in FFAppState().routeSelected.stops) {
+                                        wayPoints.add(WayPoint(
+                                            name: "Inicio",
+                                            latitude: FFAppState()
+                                                .latLngDriver
+                                                ?.latitude,
+                                            longitude: FFAppState()
+                                                .latLngDriver
+                                                ?.longitude,
+                                            isSilent: false));
+
+                                        for (var element in FFAppState()
+                                            .routeSelected
+                                            .stops) {
                                           if (!element.isComplete) {
-                                            wayPoints.add(WayPoint(name: "Destino $index", latitude: element.latitude, longitude: element.longitude, isSilent: false));
+                                            wayPoints.add(WayPoint(
+                                                name: "Destino $index",
+                                                latitude: element.latitude,
+                                                longitude: element.longitude,
+                                                isSilent: false));
                                           }
                                           index++;
                                         }
 
-                                        _controller?.buildRoute(wayPoints: wayPoints, options: _navigationOption);
+                                        _controller?.buildRoute(
+                                            wayPoints: wayPoints,
+                                            options: _navigationOption);
                                       },
                                       onRouteEvent: _onEmbeddedRouteEvent,
                                     ),
@@ -481,22 +522,27 @@ class _HomeWidgetState extends State<HomeWidget> {
                                 ],
                               ),
                             ),
-                            if (FFAppState().stopInProgress.hasStopId() && _model.menu)
+                            if (FFAppState().stopInProgress.hasStopId() &&
+                                _model.menu)
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             child: Container(
@@ -506,48 +552,101 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                 children: [
                                                   Expanded(
                                                     child: Padding(
-                                                      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 20.0, 0.0),
+                                                      padding:
+                                                          const EdgeInsetsDirectional
+                                                              .fromSTEB(0.0,
+                                                              0.0, 20.0, 0.0),
                                                       child: Container(
                                                         height: 100.0,
-                                                        decoration: BoxDecoration(
-                                                          color: FlutterFlowTheme.of(context).accent3,
-                                                          borderRadius: BorderRadius.circular(8.0),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .accent3,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
                                                         ),
                                                         child: Padding(
-                                                          padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
+                                                          padding:
+                                                              const EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                  8.0,
+                                                                  0.0,
+                                                                  8.0,
+                                                                  0.0),
                                                           child: Column(
-                                                            mainAxisSize: MainAxisSize.max,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
                                                             children: [
                                                               Expanded(
                                                                 child: Stack(
                                                                   children: [
                                                                     Padding(
-                                                                      padding: const EdgeInsetsDirectional.fromSTEB(8.0, 12.0, 0.0, 0.0),
-                                                                      child: Container(
-                                                                        width: 2.0,
-                                                                        height: 68.0,
-                                                                        decoration: const BoxDecoration(
-                                                                          color: Color(0x5B757575),
+                                                                      padding: const EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                          8.0,
+                                                                          12.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                                      child:
+                                                                          Container(
+                                                                        width:
+                                                                            2.0,
+                                                                        height:
+                                                                            68.0,
+                                                                        decoration:
+                                                                            const BoxDecoration(
+                                                                          color:
+                                                                              Color(0x5B757575),
                                                                         ),
                                                                       ),
                                                                     ),
                                                                     Padding(
-                                                                      padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
-                                                                      child: Container(
-                                                                        width: 2.0,
-                                                                        height: 50.0,
-                                                                        decoration: BoxDecoration( color: FlutterFlowTheme.of(context).primary, ),
-                                                                      ).animateOnPageLoad(animationsMap['containerOnPageLoadAnimation']!),
+                                                                      padding: const EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                          8.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0),
+                                                                      child:
+                                                                          Container(
+                                                                        width:
+                                                                            2.0,
+                                                                        height:
+                                                                            50.0,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).primary,
+                                                                        ),
+                                                                      ).animateOnPageLoad(
+                                                                              animationsMap['containerOnPageLoadAnimation']!),
                                                                     ),
                                                                     Padding(
-                                                                      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
-                                                                      child: Column(
-                                                                        mainAxisSize: MainAxisSize.max,
-                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      padding: const EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          8.0),
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.max,
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceBetween,
                                                                         children: [
                                                                           Padding(
-                                                                            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-                                                                            child: Row(
+                                                                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                                                                0.0,
+                                                                                8.0,
+                                                                                0.0,
+                                                                                0.0),
+                                                                            child:
+                                                                                Row(
                                                                               mainAxisSize: MainAxisSize.max,
                                                                               children: [
                                                                                 Padding(
@@ -574,8 +673,13 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                                             ),
                                                                           ),
                                                                           Padding(
-                                                                            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
-                                                                            child: Row(
+                                                                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                                                                0.0,
+                                                                                8.0,
+                                                                                0.0,
+                                                                                0.0),
+                                                                            child:
+                                                                                Row(
                                                                               mainAxisSize: MainAxisSize.max,
                                                                               children: [
                                                                                 Padding(
@@ -623,31 +727,65 @@ class _HomeWidgetState extends State<HomeWidget> {
                                           Container(
                                             width: 160.0,
                                             decoration: BoxDecoration(
-                                              color: functions.calculateDistanceInMeters(LatLng(latitude!, longitude!), FFAppState().stopInProgress.latitude, FFAppState().stopInProgress.longitude) 
-                                                  < 500 ? FlutterFlowTheme.of(context).tertiary : FlutterFlowTheme.of(context).alternate,
-                                              borderRadius: BorderRadius.circular(8.0),
+                                              color: functions.calculateDistanceInMeters(
+                                                          LatLng(latitude!,
+                                                              longitude!),
+                                                          FFAppState()
+                                                              .stopInProgress
+                                                              .latitude,
+                                                          FFAppState()
+                                                              .stopInProgress
+                                                              .longitude) <
+                                                      500
+                                                  ? FlutterFlowTheme.of(context)
+                                                      .tertiary
+                                                  : FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                                              padding:
+                                                  const EdgeInsetsDirectional
+                                                      .fromSTEB(
+                                                      20.0, 0.0, 20.0, 0.0),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.max,
                                                 children: [
                                                   Padding(
-                                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 8.0),
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                            0.0, 8.0, 0.0, 8.0),
                                                     child: Text(
                                                       'Distância em Raio',
-                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                            fontFamily: 'Poppins',
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                'Poppins',
                                                             color: Colors.white,
                                                             fontSize: 12.0,
                                                           ),
                                                     ),
                                                   ),
                                                   Text(
-                                                      calculateDistanceInMostReadableUnit(LatLng(latitude!, longitude!), FFAppState().stopInProgress.latitude, FFAppState().stopInProgress.longitude)
-                                                      ? distance.toString() : "",
-
-                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
+                                                    calculateDistanceInMostReadableUnit(
+                                                            LatLng(latitude!,
+                                                                longitude!),
+                                                            FFAppState()
+                                                                .stopInProgress
+                                                                .latitude,
+                                                            FFAppState()
+                                                                .stopInProgress
+                                                                .longitude)
+                                                        ? distance.toString()
+                                                        : "",
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium
+                                                        .override(
                                                           fontFamily: 'Poppins',
                                                           color: Colors.white,
                                                           fontSize: 40.0,
@@ -655,11 +793,18 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                         ),
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 8.0),
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                            0.0, 0.0, 0.0, 8.0),
                                                     child: Text(
                                                       unit,
-                                                      style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                            fontFamily: 'Poppins',
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .bodyMedium
+                                                          .override(
+                                                            fontFamily:
+                                                                'Poppins',
                                                             color: Colors.white,
                                                             fontSize: 12.0,
                                                           ),
@@ -672,12 +817,20 @@ class _HomeWidgetState extends State<HomeWidget> {
                                         ],
                                       ),
                                       Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 20.0),
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(0.0, 20.0, 0.0, 20.0),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            if ((FFAppState().routeSelected.stops.where((e) => !e.isComplete).toList().length > 1))
+                                            if ((FFAppState()
+                                                    .routeSelected
+                                                    .stops
+                                                    .where((e) => !e.isComplete)
+                                                    .toList()
+                                                    .length >
+                                                1))
                                               Expanded(
                                                 child: FFButtonWidget(
                                                   text: 'Finalizar Parada',
@@ -685,80 +838,164 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                     // await _getLocation();
 
                                                     setState(() {
-                                                      FFAppState().addToPositions(PositionsStruct(
+                                                      FFAppState()
+                                                          .addToPositions(
+                                                              PositionsStruct(
                                                         cpf: FFAppState().cpf,
-                                                        routeId: FFAppState().routeSelected.routeId,
-                                                        latitude: FFAppState().latLngDriver?.latitude,
-                                                        longitude: FFAppState().latLngDriver?.longitude,
-                                                        date: DateTime.now().subtract(DateTime.now().timeZoneOffset).subtract(const Duration(hours: 3)),
+                                                        routeId: FFAppState()
+                                                            .routeSelected
+                                                            .routeId,
+                                                        latitude: FFAppState()
+                                                            .latLngDriver
+                                                            ?.latitude,
+                                                        longitude: FFAppState()
+                                                            .latLngDriver
+                                                            ?.longitude,
+                                                        date: DateTime.now()
+                                                            .subtract(DateTime
+                                                                    .now()
+                                                                .timeZoneOffset)
+                                                            .subtract(
+                                                                const Duration(
+                                                                    hours: 3)),
                                                         finish: true,
                                                       ));
 
-                                                      FFAppState().updateRouteSelectedStruct((e) => e..updateStops(
-                                                        (e) => e[FFAppState().stopInProgress.stopOrder - 1]..isComplete = true,),
+                                                      FFAppState()
+                                                          .updateRouteSelectedStruct(
+                                                        (e) => e
+                                                          ..updateStops(
+                                                            (e) => e[FFAppState()
+                                                                    .stopInProgress
+                                                                    .stopOrder -
+                                                                1]
+                                                              ..isComplete =
+                                                                  true,
+                                                          ),
                                                       );
 
                                                       FFAppState().update(() {
-                                                        FFAppState().stopInProgress = FFAppState().routeSelected.stops.where((e) => !e.isComplete).toList().first;
+                                                        FFAppState()
+                                                                .stopInProgress =
+                                                            FFAppState()
+                                                                .routeSelected
+                                                                .stops
+                                                                .where((e) => !e
+                                                                    .isComplete)
+                                                                .toList()
+                                                                .first;
                                                       });
                                                     });
 
                                                     bool isFirstWhile = true;
 
-                                                    while (_model.index < FFAppState().positions.length) {
-                                                      connectivityResult = await Connectivity().checkConnectivity();
-                                                      if (connectivityResult.contains(ConnectivityResult.wifi) || connectivityResult.contains(ConnectivityResult.mobile)) {
-                                                     
-                                                        if(isFirstWhile)
-                                                        {
+                                                    while (_model.index <
+                                                        FFAppState()
+                                                            .positions
+                                                            .length) {
+                                                      connectivityResult =
+                                                          await Connectivity()
+                                                              .checkConnectivity();
+                                                      if (connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .wifi) ||
+                                                          connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .mobile)) {
+                                                        if (isFirstWhile) {
                                                           var index = 1;
                                                           isFirstWhile = false;
 
                                                           wayPoints.clear();
-                                                          
-                                                          wayPoints.add( WayPoint(
-                                                            name: "Início", 
-                                                            latitude: FFAppState().latLngDriver?.latitude, 
-                                                            longitude: FFAppState().latLngDriver?.longitude, 
-                                                            isSilent: false)
-                                                          );
-                                                          
-                                                          for (var element in FFAppState().routeSelected.stops) {
-                                                            if (!element.isComplete) {
-                                                              wayPoints.add( WayPoint(
-                                                                name: "Destino $index", 
-                                                                latitude: element.latitude, 
-                                                                longitude: element.longitude, 
-                                                                isSilent: false));
+
+                                                          wayPoints.add(WayPoint(
+                                                              name: "Início",
+                                                              latitude: FFAppState()
+                                                                  .latLngDriver
+                                                                  ?.latitude,
+                                                              longitude: FFAppState()
+                                                                  .latLngDriver
+                                                                  ?.longitude,
+                                                              isSilent: false));
+
+                                                          for (var element
+                                                              in FFAppState()
+                                                                  .routeSelected
+                                                                  .stops) {
+                                                            if (!element
+                                                                .isComplete) {
+                                                              wayPoints.add(WayPoint(
+                                                                  name:
+                                                                      "Destino $index",
+                                                                  latitude: element
+                                                                      .latitude,
+                                                                  longitude: element
+                                                                      .longitude,
+                                                                  isSilent:
+                                                                      false));
                                                             }
                                                             index++;
                                                           }
 
-                                                          _controller?.buildRoute(wayPoints: wayPoints, options: _navigationOption);
+                                                          _controller?.buildRoute(
+                                                              wayPoints:
+                                                                  wayPoints,
+                                                              options:
+                                                                  _navigationOption);
                                                         }
 
-                                                        _model.enviarLocalizacao1 = await APIsPigmanGroup.postPositionCall.call(
+                                                        _model.enviarLocalizacao1 =
+                                                            await APIsPigmanGroup
+                                                                .postPositionCall
+                                                                .call(
                                                           cpf: FFAppState().cpf,
-                                                          routeId: FFAppState().positions.first.routeId,
-                                                          latitude: FFAppState().positions.first.latitude,
-                                                          longitude: FFAppState().positions.first.longitude,
-                                                          isFinished: FFAppState().positions.first.finish,
-                                                          infoDt: dateTimeFormat(
+                                                          routeId: FFAppState()
+                                                              .positions
+                                                              .first
+                                                              .routeId,
+                                                          latitude: FFAppState()
+                                                              .positions
+                                                              .first
+                                                              .latitude,
+                                                          longitude:
+                                                              FFAppState()
+                                                                  .positions
+                                                                  .first
+                                                                  .longitude,
+                                                          isFinished:
+                                                              FFAppState()
+                                                                  .positions
+                                                                  .first
+                                                                  .finish,
+                                                          infoDt:
+                                                              dateTimeFormat(
                                                             'yyyy-MM-dd HH:mm:ss',
-                                                            FFAppState().positions.first.date,
-                                                            locale: FFLocalizations.of(context).languageCode,
+                                                            FFAppState()
+                                                                .positions
+                                                                .first
+                                                                .date,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
                                                           ),
                                                         );
 
-                                                        if ((_model.enviarLocalizacao1?.succeeded ?? true)) {
+                                                        if ((_model
+                                                                .enviarLocalizacao1
+                                                                ?.succeeded ??
+                                                            true)) {
                                                           setState(() {
-                                                            FFAppState().removeAtIndexFromPositions(0);
+                                                            FFAppState()
+                                                                .removeAtIndexFromPositions(
+                                                                    0);
                                                           });
-                                                        } 
-                                                        
-                                                        else {
+                                                        } else {
                                                           setState(() {
-                                                            _model.index = _model.index + 1;
+                                                            _model.index =
+                                                                _model.index +
+                                                                    1;
                                                           });
                                                         }
                                                       } else {
@@ -768,147 +1005,294 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                     setState(() {});
                                                   },
                                                   icon: const FaIcon(
-                                                    FontAwesomeIcons.flagCheckered,
+                                                    FontAwesomeIcons
+                                                        .flagCheckered,
                                                     size: 16.0,
                                                   ),
                                                   options: FFButtonOptions(
                                                     height: 48.0,
-                                                    padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                    color: FlutterFlowTheme.of(context).tertiary,
-                                                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(24.0, 0.0,
+                                                            24.0, 0.0),
+                                                    iconPadding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                            0.0, 0.0, 0.0, 0.0),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .tertiary,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
                                                           fontFamily: 'Poppins',
                                                           color: Colors.white,
                                                         ),
                                                     elevation: 3.0,
-                                                    borderSide: const BorderSide(
+                                                    borderSide:
+                                                        const BorderSide(
                                                       color: Colors.transparent,
                                                       width: 1.0,
                                                     ),
-                                                    borderRadius: BorderRadius.circular(8.0),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
                                                   ),
                                                 ),
                                               ),
-
-
-                                            if ((FFAppState().routeSelected.stops.where((e) => !e.isComplete).toList().length == 1))
+                                            if ((FFAppState()
+                                                    .routeSelected
+                                                    .stops
+                                                    .where((e) => !e.isComplete)
+                                                    .toList()
+                                                    .length ==
+                                                1))
                                               Expanded(
                                                 child: FFButtonWidget(
                                                   text: 'Finalizar Viagem',
                                                   onPressed: () async {
-                                                  //  await _getLocation();
+                                                    //  await _getLocation();
 
                                                     // Adicionar posição no array
                                                     setState(() {
-                                                      FFAppState().addToPositions(PositionsStruct(
+                                                      FFAppState()
+                                                          .addToPositions(
+                                                              PositionsStruct(
                                                         cpf: FFAppState().cpf,
-                                                        routeId: FFAppState().routeSelected.routeId,
-                                                        latitude: FFAppState().latLngDriver?.latitude,
-                                                        longitude: FFAppState().latLngDriver?.longitude,
-                                                        date: DateTime.now().subtract(DateTime.now().timeZoneOffset).subtract(const Duration(hours: 3)),
+                                                        routeId: FFAppState()
+                                                            .routeSelected
+                                                            .routeId,
+                                                        latitude: FFAppState()
+                                                            .latLngDriver
+                                                            ?.latitude,
+                                                        longitude: FFAppState()
+                                                            .latLngDriver
+                                                            ?.longitude,
+                                                        date: DateTime.now()
+                                                            .subtract(DateTime
+                                                                    .now()
+                                                                .timeZoneOffset)
+                                                            .subtract(
+                                                                const Duration(
+                                                                    hours: 3)),
                                                         finish: true,
                                                         finishViagem: true,
                                                       ));
                                                     });
 
-                                                    FFAppState().viagemFinalizada = true;
+                                                    FFAppState()
+                                                            .viagemFinalizada =
+                                                        true;
 
-                                                    while (_model.index < FFAppState().positions.length) {
-                                                      connectivityResult = await Connectivity().checkConnectivity();
-                                                      if (connectivityResult.contains(ConnectivityResult.wifi) || connectivityResult.contains(ConnectivityResult.mobile)) {
-                                                        _model.enviarLocalizacaoFinal = await APIsPigmanGroup.postPositionCall.call(
+                                                    while (_model.index <
+                                                        FFAppState()
+                                                            .positions
+                                                            .length) {
+                                                      connectivityResult =
+                                                          await Connectivity()
+                                                              .checkConnectivity();
+                                                      if (connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .wifi) ||
+                                                          connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .mobile)) {
+                                                        _model.enviarLocalizacaoFinal =
+                                                            await APIsPigmanGroup
+                                                                .postPositionCall
+                                                                .call(
                                                           cpf: FFAppState().cpf,
-                                                          routeId: FFAppState().positions.first.routeId,
-                                                          latitude: FFAppState().positions.first.latitude,
-                                                          longitude: FFAppState().positions.first.longitude,
-                                                          isFinished: FFAppState().positions.first.finish,
-                                                          infoDt: dateTimeFormat(
+                                                          routeId: FFAppState()
+                                                              .positions
+                                                              .first
+                                                              .routeId,
+                                                          latitude: FFAppState()
+                                                              .positions
+                                                              .first
+                                                              .latitude,
+                                                          longitude:
+                                                              FFAppState()
+                                                                  .positions
+                                                                  .first
+                                                                  .longitude,
+                                                          isFinished:
+                                                              FFAppState()
+                                                                  .positions
+                                                                  .first
+                                                                  .finish,
+                                                          infoDt:
+                                                              dateTimeFormat(
                                                             'yyyy-MM-dd HH:mm:ss',
-                                                            FFAppState().positions.first.date,
-                                                            locale: FFLocalizations.of(context).languageCode,
+                                                            FFAppState()
+                                                                .positions
+                                                                .first
+                                                                .date,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
                                                           ),
                                                         );
 
-                                                        if ((_model.enviarLocalizacaoFinal?.succeeded ?? true)) {
-                                                          if ((_model.enviarLocalizacaoFinal?.jsonBody ?? '')) {
+                                                        if ((_model
+                                                                .enviarLocalizacaoFinal
+                                                                ?.succeeded ??
+                                                            true)) {
+                                                          if ((_model
+                                                                  .enviarLocalizacaoFinal
+                                                                  ?.jsonBody ??
+                                                              '')) {
                                                             setState(() {
-                                                              FFAppState().positions = [];
-                                                              FFAppState().stopInProgress = StopStruct();
-                                                              FFAppState().routeSelected = RouteStruct();
+                                                              FFAppState()
+                                                                  .positions = [];
+                                                              FFAppState()
+                                                                      .stopInProgress =
+                                                                  StopStruct();
+                                                              FFAppState()
+                                                                      .routeSelected =
+                                                                  RouteStruct();
                                                             });
-                                                            _model.pegarNovaRota = await APIsPigmanGroup.getNextRouteCall.call(
-                                                              cpf: FFAppState().cpf,
+                                                            _model.pegarNovaRota =
+                                                                await APIsPigmanGroup
+                                                                    .getNextRouteCall
+                                                                    .call(
+                                                              cpf: FFAppState()
+                                                                  .cpf,
                                                             );
-                                                            if ((_model.pegarNovaRota?.succeeded ?? true)) {
+                                                            if ((_model
+                                                                    .pegarNovaRota
+                                                                    ?.succeeded ??
+                                                                true)) {
                                                               setState(() {
-                                                                FFAppState().routeSelected = APIsPigmanGroup.getNextRouteCall.rota(
-                                                                  (_model.pegarNovaRota?.jsonBody ?? ''),
+                                                                FFAppState()
+                                                                        .routeSelected =
+                                                                    APIsPigmanGroup
+                                                                        .getNextRouteCall
+                                                                        .rota(
+                                                                  (_model.pegarNovaRota
+                                                                          ?.jsonBody ??
+                                                                      ''),
                                                                 )!;
                                                               });
                                                             }
-                                                          } 
-                                                          else {
+                                                          } else {
                                                             setState(() {
-                                                              FFAppState().removeAtIndexFromPositions(0);
+                                                              FFAppState()
+                                                                  .removeAtIndexFromPositions(
+                                                                      0);
                                                             });
                                                           }
                                                         } else {
                                                           setState(() {
-                                                            _model.index = _model.index + 1;
+                                                            _model.index =
+                                                                _model.index +
+                                                                    1;
                                                           });
                                                         }
                                                       }
                                                     }
 
                                                     setState(() {});
-                                                    if (FFAppState().positions.isEmpty) {
-                                                      context.pushReplacementNamed('home');
+                                                    if (FFAppState()
+                                                        .positions
+                                                        .isEmpty) {
+                                                      context
+                                                          .pushReplacementNamed(
+                                                              'home');
                                                     } else {
-                                                      context.pushReplacementNamed('viagemConcluida');
+                                                      context
+                                                          .pushReplacementNamed(
+                                                              'viagemConcluida');
                                                     }
                                                   },
                                                   icon: const FaIcon(
-                                                    FontAwesomeIcons.flagCheckered,
+                                                    FontAwesomeIcons
+                                                        .flagCheckered,
                                                     size: 16.0,
                                                   ),
                                                   options: FFButtonOptions(
                                                     height: 48.0,
-                                                    padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                                                    iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                    color: FlutterFlowTheme.of(context).tertiary,
-                                                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                                                    padding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(24.0, 0.0,
+                                                            24.0, 0.0),
+                                                    iconPadding:
+                                                        const EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                            0.0, 0.0, 0.0, 0.0),
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .tertiary,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
                                                           fontFamily: 'Poppins',
                                                           color: Colors.white,
                                                           fontSize: 16.0,
                                                         ),
                                                     elevation: 3.0,
-                                                    borderSide: const BorderSide(
+                                                    borderSide:
+                                                        const BorderSide(
                                                       color: Colors.transparent,
                                                       width: 1.0,
                                                     ),
-                                                    borderRadius: BorderRadius.circular(8.0),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
                                                   ),
                                                 ),
                                               ),
-
                                             if (_model.botaoRota)
                                               Expanded(
                                                 child: Padding(
-                                                  padding: const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 0.0, 0.0),
+                                                  padding:
+                                                      const EdgeInsetsDirectional
+                                                          .fromSTEB(
+                                                          20.0, 0.0, 0.0, 0.0),
                                                   child: FFButtonWidget(
                                                     text: 'Iniciar navegação',
                                                     onPressed: () async {
                                                       // await _getLocation();
 
-                                                      connectivityResult = await Connectivity().checkConnectivity();
-                                                      if (connectivityResult.contains(ConnectivityResult.wifi) || connectivityResult.contains(ConnectivityResult.mobile)) {
+                                                      connectivityResult =
+                                                          await Connectivity()
+                                                              .checkConnectivity();
+                                                      if (connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .wifi) ||
+                                                          connectivityResult
+                                                              .contains(
+                                                                  ConnectivityResult
+                                                                      .mobile)) {
                                                         setState(() {
-                                                          FFAppState().addToPositions(PositionsStruct(
-                                                            cpf: FFAppState().cpf,
-                                                            routeId: FFAppState().routeSelected.routeId,
-                                                            latitude: FFAppState().latLngDriver?.latitude,
-                                                            longitude: FFAppState().latLngDriver?.longitude,
-                                                            date: DateTime.now().subtract(DateTime.now().timeZoneOffset).subtract(const Duration(hours: 3)),
+                                                          FFAppState()
+                                                              .addToPositions(
+                                                                  PositionsStruct(
+                                                            cpf: FFAppState()
+                                                                .cpf,
+                                                            routeId: FFAppState()
+                                                                .routeSelected
+                                                                .routeId,
+                                                            latitude:
+                                                                FFAppState()
+                                                                    .latLngDriver
+                                                                    ?.latitude,
+                                                            longitude:
+                                                                FFAppState()
+                                                                    .latLngDriver
+                                                                    ?.longitude,
+                                                            date: DateTime.now()
+                                                                .subtract(DateTime
+                                                                        .now()
+                                                                    .timeZoneOffset)
+                                                                .subtract(
+                                                                    const Duration(
+                                                                        hours:
+                                                                            3)),
                                                             finish: false,
                                                           ));
                                                         });
@@ -917,22 +1301,49 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                         wayPoints.clear();
                                                         var index = 1;
 
-                                                        wayPoints.add(WayPoint(name: "Inicio", latitude: latitude, longitude: longitude, isSilent: false));
+                                                        wayPoints.add(WayPoint(
+                                                            name: "Inicio",
+                                                            latitude: latitude,
+                                                            longitude:
+                                                                longitude,
+                                                            isSilent: false));
 
-                                                        for (var element in FFAppState().routeSelected.stops) {
-                                                          if (!element.isComplete) {
-                                                            wayPoints.add(WayPoint(name: "Destino $index", latitude: element.latitude, longitude: element.longitude, isSilent: false));
+                                                        for (var element
+                                                            in FFAppState()
+                                                                .routeSelected
+                                                                .stops) {
+                                                          if (!element
+                                                              .isComplete) {
+                                                            wayPoints.add(WayPoint(
+                                                                name:
+                                                                    "Destino $index",
+                                                                latitude: element
+                                                                    .latitude,
+                                                                longitude: element
+                                                                    .longitude,
+                                                                isSilent:
+                                                                    false));
                                                           }
                                                           index++;
                                                         }
 
-                                                        _controller?.buildRoute(wayPoints: wayPoints, options: _navigationOption);
-                                                      } 
-     
+                                                        _controller?.buildRoute(
+                                                            wayPoints:
+                                                                wayPoints,
+                                                            options:
+                                                                _navigationOption);
+                                                      }
+
                                                       _model.botaoRota = false;
                                                       _model.menu = false;
 
-                                                      await MapBoxNavigation.instance.startNavigation(wayPoints: wayPoints, options: _navigationOption);
+                                                      await MapBoxNavigation
+                                                          .instance
+                                                          .startNavigation(
+                                                              wayPoints:
+                                                                  wayPoints,
+                                                              options:
+                                                                  _navigationOption);
 
                                                       setState(() {});
                                                     },
@@ -942,20 +1353,38 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                     ),
                                                     options: FFButtonOptions(
                                                       height: 48.0,
-                                                      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                                      padding:
+                                                          const EdgeInsetsDirectional
+                                                              .fromSTEB(16.0,
+                                                              0.0, 16.0, 0.0),
+                                                      iconPadding:
+                                                          const EdgeInsetsDirectional
+                                                              .fromSTEB(0.0,
+                                                              0.0, 0.0, 0.0),
                                                       color: Colors.transparent,
-                                                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                            fontFamily: 'Poppins',
-                                                            color: FlutterFlowTheme.of(context).primary,
-                                                            fontSize: 10.0,
-                                                          ),
+                                                      textStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleSmall
+                                                              .override(
+                                                                fontFamily:
+                                                                    'Poppins',
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primary,
+                                                                fontSize: 10.0,
+                                                              ),
                                                       elevation: 0.0,
                                                       borderSide: BorderSide(
-                                                        color: FlutterFlowTheme.of(context).primary,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primary,
                                                         width: 2.0,
                                                       ),
-                                                      borderRadius: BorderRadius.circular(8.0),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
                                                     ),
                                                   ),
                                                 ),
@@ -975,18 +1404,22 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   maxHeight: 220.0,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).secondaryBackground,
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             child: Row(
@@ -995,116 +1428,237 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                 Expanded(
                                                   child: Container(
                                                     height: 160.0,
-                                                    decoration: const BoxDecoration(),
+                                                    decoration:
+                                                        const BoxDecoration(),
                                                     child: Column(
-                                                      mainAxisSize: MainAxisSize.max,
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.max,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
                                                         Column(
-                                                          mainAxisSize: MainAxisSize.max,
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             Text(
                                                               'Uma viagem disponível',
-                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                    fontFamily: 'Poppins',
-                                                                    fontSize: 18.0,
+                                                              style: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .bodyMedium
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        'Poppins',
+                                                                    fontSize:
+                                                                        18.0,
                                                                   ),
                                                             ),
                                                             Column(
-                                                              mainAxisSize: MainAxisSize.max,
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
                                                               children: [
                                                                 Padding(
-                                                                  padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                                                                  padding:
+                                                                      const EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                          0.0,
+                                                                          8.0,
+                                                                          0.0,
+                                                                          0.0),
                                                                   child: Text(
-                                                                    valueOrDefault<String>(
-                                                                      functions.formatDateString(FFAppState().routeSelected.expectedArrivalDt),
+                                                                    valueOrDefault<
+                                                                        String>(
+                                                                      functions.formatDateString(FFAppState()
+                                                                          .routeSelected
+                                                                          .expectedArrivalDt),
                                                                       '-',
                                                                     ),
-                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                          fontFamily: 'Poppins',
-                                                                          color: FlutterFlowTheme.of(context).accent1,
-                                                                          fontSize: 20.0,
+                                                                    style: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .bodyMedium
+                                                                        .override(
+                                                                          fontFamily:
+                                                                              'Poppins',
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).accent1,
+                                                                          fontSize:
+                                                                              20.0,
                                                                         ),
                                                                   ),
                                                                 ),
                                                                 Text(
                                                                   'Previsão de chegada às ${functions.formatDateTimeString(FFAppState().routeSelected.expectedArrivalDt)}',
-                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                        fontFamily: 'Poppins',
-                                                                        color: FlutterFlowTheme.of(context).accent1,
-                                                                        fontSize: 8.0,
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .override(
+                                                                        fontFamily:
+                                                                            'Poppins',
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .accent1,
+                                                                        fontSize:
+                                                                            8.0,
                                                                       ),
                                                                 ),
                                                               ],
                                                             ),
                                                           ],
                                                         ),
-                                                        if (FFAppState().routeSelected.stops.where((e) => e.isComplete).toList().isEmpty)
+                                                        if (FFAppState()
+                                                            .routeSelected
+                                                            .stops
+                                                            .where((e) =>
+                                                                e.isComplete)
+                                                            .toList()
+                                                            .isEmpty)
                                                           Padding(
-                                                            padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 20.0, 0.0),
-                                                            child: FFButtonWidget(
-                                                              text: 'Iniciar viagem',
-                                                              onPressed: () async {                 
-                                                                _model.apiResult7s3 = await APIsPigmanGroup.acceptRouteCall.call(
-                                                                  cpf: FFAppState().cpf,
-                                                                  routeId: FFAppState().routeSelected.routeId,
+                                                            padding:
+                                                                const EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                    0.0,
+                                                                    0.0,
+                                                                    20.0,
+                                                                    0.0),
+                                                            child:
+                                                                FFButtonWidget(
+                                                              text:
+                                                                  'Iniciar viagem',
+                                                              onPressed:
+                                                                  () async {
+                                                                _model.apiResult7s3 =
+                                                                    await APIsPigmanGroup
+                                                                        .acceptRouteCall
+                                                                        .call(
+                                                                  cpf:
+                                                                      FFAppState()
+                                                                          .cpf,
+                                                                  routeId: FFAppState()
+                                                                      .routeSelected
+                                                                      .routeId,
                                                                 );
 
-                                                                if ((_model.apiResult7s3?.succeeded ?? true)) {
-                                                                  FFAppState().update(() {
-                                                                    FFAppState().stopInProgress = FFAppState().routeSelected.stops.first;
-                                                                  }); 
+                                                                if ((_model
+                                                                        .apiResult7s3
+                                                                        ?.succeeded ??
+                                                                    true)) {
+                                                                  FFAppState()
+                                                                      .update(
+                                                                          () {
+                                                                    FFAppState()
+                                                                            .stopInProgress =
+                                                                        FFAppState()
+                                                                            .routeSelected
+                                                                            .stops
+                                                                            .first;
+                                                                  });
 
                                                                   setState(() {
-                                                                    FFAppState().addToPositions(PositionsStruct(
-                                                                      cpf: FFAppState().cpf,
-                                                                      routeId: FFAppState().routeSelected.routeId,
-                                                                      latitude: FFAppState().latLngDriver?.latitude,
-                                                                      longitude: FFAppState().latLngDriver?.longitude,
-                                                                      date: DateTime.now().subtract(DateTime.now().timeZoneOffset).subtract(const Duration(hours: 3)),
-                                                                      finish: false,
+                                                                    FFAppState()
+                                                                        .addToPositions(
+                                                                            PositionsStruct(
+                                                                      cpf: FFAppState()
+                                                                          .cpf,
+                                                                      routeId: FFAppState()
+                                                                          .routeSelected
+                                                                          .routeId,
+                                                                      latitude: FFAppState()
+                                                                          .latLngDriver
+                                                                          ?.latitude,
+                                                                      longitude: FFAppState()
+                                                                          .latLngDriver
+                                                                          ?.longitude,
+                                                                      date: DateTime.now()
+                                                                          .subtract(DateTime.now()
+                                                                              .timeZoneOffset)
+                                                                          .subtract(
+                                                                              const Duration(hours: 3)),
+                                                                      finish:
+                                                                          false,
                                                                     ));
                                                                   });
 
-                                                                  postRoute(false);
-                                                                } 
-                                                                
-                                                                else {
-                                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                                  postRoute(
+                                                                      false);
+                                                                } else {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(
                                                                     SnackBar(
-                                                                      content: const Text(
+                                                                      content:
+                                                                          const Text(
                                                                         'Não foi possível iniciar a viagem, verifique sua conexão com internet e tente novamente.',
-                                                                        style: TextStyle(
-                                                                          color: Colors.white,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.white,
                                                                         ),
                                                                       ),
-                                                                      duration: const Duration(milliseconds: 4000),
-                                                                      backgroundColor: FlutterFlowTheme.of(context).error,
+                                                                      duration: const Duration(
+                                                                          milliseconds:
+                                                                              4000),
+                                                                      backgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .error,
                                                                     ),
                                                                   );
                                                                 }
-                                                                _model.menu = true;
+                                                                _model.menu =
+                                                                    true;
                                                                 setState(() {});
                                                               },
-                                                              options: FFButtonOptions(
+                                                              options:
+                                                                  FFButtonOptions(
                                                                 height: 48.0,
-                                                                padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                                                                iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                                color: FlutterFlowTheme.of(context).primary,
-                                                                textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                                      fontFamily: 'Poppins',
-                                                                      color: Colors.white,
+                                                                padding:
+                                                                    const EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                        24.0,
+                                                                        0.0,
+                                                                        24.0,
+                                                                        0.0),
+                                                                iconPadding:
+                                                                    const EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0),
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primary,
+                                                                textStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleSmall
+                                                                    .override(
+                                                                      fontFamily:
+                                                                          'Poppins',
+                                                                      color: Colors
+                                                                          .white,
                                                                     ),
                                                                 elevation: 3.0,
-                                                                borderSide: const BorderSide(
-                                                                  color: Colors.transparent,
+                                                                borderSide:
+                                                                    const BorderSide(
+                                                                  color: Colors
+                                                                      .transparent,
                                                                   width: 1.0,
                                                                 ),
-                                                                borderRadius: BorderRadius.circular(8.0),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8.0),
                                                               ),
                                                             ),
                                                           ),
@@ -1119,63 +1673,122 @@ class _HomeWidgetState extends State<HomeWidget> {
                                             child: Container(
                                               height: 160.0,
                                               decoration: BoxDecoration(
-                                                color: FlutterFlowTheme.of(context).accent3,
-                                                borderRadius: BorderRadius.circular(8.0),
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .accent3,
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
+                                                padding:
+                                                    const EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                        8.0, 0.0, 8.0, 0.0),
                                                 child: Column(
-                                                  mainAxisSize: MainAxisSize.max,
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
                                                   children: [
                                                     Padding(
-                                                      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                                                      padding:
+                                                          const EdgeInsetsDirectional
+                                                              .fromSTEB(0.0,
+                                                              8.0, 0.0, 0.0),
                                                       child: Text(
                                                         'Paradas',
-                                                        style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                              fontFamily: 'Poppins',
-                                                              color: FlutterFlowTheme.of(context).secondary,
-                                                              fontSize: 14.0,
-                                                            ),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Poppins',
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .secondary,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                ),
                                                       ),
                                                     ),
                                                     Expanded(
                                                       child: Stack(
                                                         children: [
                                                           Padding(
-                                                            padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 0.0, 0.0),
+                                                            padding:
+                                                                const EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                    8.0,
+                                                                    0.0,
+                                                                    0.0,
+                                                                    0.0),
                                                             child: Container(
                                                               width: 2.0,
-                                                              height: double.infinity,
-                                                              decoration: BoxDecoration(
-                                                                color: FlutterFlowTheme.of(context).accent1,
+                                                              height: double
+                                                                  .infinity,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .accent1,
                                                               ),
                                                             ),
                                                           ),
                                                           Builder(
                                                             builder: (context) {
-                                                              final stops = FFAppState().routeSelected.stops.toList();
-                                                              return ListView.builder(
-                                                                padding: EdgeInsets.zero,
-                                                                shrinkWrap: true,
-                                                                scrollDirection: Axis.vertical,
-                                                                itemCount: stops.length,
-                                                                itemBuilder: (context, stopsIndex) {
-                                                                  final stopsItem = stops[stopsIndex];
+                                                              final stops =
+                                                                  FFAppState()
+                                                                      .routeSelected
+                                                                      .stops
+                                                                      .toList();
+                                                              return ListView
+                                                                  .builder(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .zero,
+                                                                shrinkWrap:
+                                                                    true,
+                                                                scrollDirection:
+                                                                    Axis.vertical,
+                                                                itemCount: stops
+                                                                    .length,
+                                                                itemBuilder:
+                                                                    (context,
+                                                                        stopsIndex) {
+                                                                  final stopsItem =
+                                                                      stops[
+                                                                          stopsIndex];
                                                                   return Padding(
-                                                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+                                                                    padding: const EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                        0.0,
+                                                                        8.0,
+                                                                        0.0,
+                                                                        0.0),
                                                                     child: Row(
-                                                                      mainAxisSize: MainAxisSize.max,
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .max,
                                                                       children: [
                                                                         Padding(
-                                                                          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 8.0, 0.0),
-                                                                          child: Container(
-                                                                            width: 20.0,
-                                                                            height: 20.0,
-                                                                            decoration: BoxDecoration(
+                                                                          padding: const EdgeInsetsDirectional
+                                                                              .fromSTEB(
+                                                                              0.0,
+                                                                              0.0,
+                                                                              8.0,
+                                                                              0.0),
+                                                                          child:
+                                                                              Container(
+                                                                            width:
+                                                                                20.0,
+                                                                            height:
+                                                                                20.0,
+                                                                            decoration:
+                                                                                BoxDecoration(
                                                                               color: FlutterFlowTheme.of(context).accent1,
                                                                               borderRadius: BorderRadius.circular(24.0),
                                                                             ),
-                                                                            child: Row(
+                                                                            child:
+                                                                                Row(
                                                                               mainAxisSize: MainAxisSize.max,
                                                                               children: [
                                                                                 if (stopsItem.isComplete)
@@ -1195,8 +1808,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                                           ),
                                                                         ),
                                                                         Text(
-                                                                          stopsItem.stopName,
-                                                                          style: FlutterFlowTheme.of(context).bodyMedium,
+                                                                          stopsItem
+                                                                              .stopName,
+                                                                          style:
+                                                                              FlutterFlowTheme.of(context).bodyMedium,
                                                                         ),
                                                                       ],
                                                                     ),
@@ -1220,14 +1835,17 @@ class _HomeWidgetState extends State<HomeWidget> {
                                 ),
                               ),
                             Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 30.0),
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  0.0, 0.0, 0.0, 30.0),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (FFAppState().stopInProgress.hasStopId() && _model.menu)
+                                  if (FFAppState().stopInProgress.hasStopId() &&
+                                      _model.menu)
                                     Align(
                                       child: Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 20.0),
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(0.0, 0.0, 0.0, 20.0),
                                         child: InkWell(
                                           splashColor: Colors.transparent,
                                           focusColor: Colors.transparent,
@@ -1240,16 +1858,19 @@ class _HomeWidgetState extends State<HomeWidget> {
                                           },
                                           child: Icon(
                                             Icons.keyboard_arrow_down_rounded,
-                                            color: FlutterFlowTheme.of(context).primary,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
                                             size: 32.0,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  if (FFAppState().stopInProgress.hasStopId() && !_model.menu)
+                                  if (FFAppState().stopInProgress.hasStopId() &&
+                                      !_model.menu)
                                     Align(
                                       child: Padding(
-                                        padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 20.0),
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(0.0, 0.0, 0.0, 20.0),
                                         child: InkWell(
                                           splashColor: Colors.transparent,
                                           focusColor: Colors.transparent,
@@ -1262,19 +1883,21 @@ class _HomeWidgetState extends State<HomeWidget> {
                                           },
                                           child: Icon(
                                             Icons.keyboard_arrow_up_rounded,
-                                            color: FlutterFlowTheme.of(context).primary,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
                                             size: 32.0,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Dados não sincronizados: ${FFAppState().positions.length.toString()}',
-                                        style: FlutterFlowTheme.of(context).bodyMedium,
-                                      ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Dados não sincronizados: ${FFAppState().positions.length.toString()}',
+                                      style: FlutterFlowTheme.of(context)
+                                          .bodyMedium,
                                     ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1290,14 +1913,17 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> postRoute(bool finish) async {
-    if (FFAppState().positions.isNotEmpty ? !FFAppState().positions.last.finishViagem : true) {
+    if (FFAppState().positions.isNotEmpty
+        ? !FFAppState().positions.last.finishViagem
+        : true) {
       while (_model.index < FFAppState().positions.length) {
-
         connectivityResult = await Connectivity().checkConnectivity();
 
-        if (connectivityResult.contains(ConnectivityResult.wifi) || connectivityResult.contains(ConnectivityResult.mobile)) {      
+        if (connectivityResult.contains(ConnectivityResult.wifi) ||
+            connectivityResult.contains(ConnectivityResult.mobile)) {
           if (FFAppState().positions.isNotEmpty) {
-            _model.enviarLocalizacao1 = await APIsPigmanGroup.postPositionCall.call(
+            _model.enviarLocalizacao1 =
+                await APIsPigmanGroup.postPositionCall.call(
               cpf: FFAppState().cpf,
               routeId: FFAppState().positions.first.routeId,
               latitude: FFAppState().positions.first.latitude,
@@ -1309,16 +1935,14 @@ class _HomeWidgetState extends State<HomeWidget> {
                 locale: FFLocalizations.of(context).languageCode,
               ),
             );
-            
+
             if ((_model.enviarLocalizacao1?.succeeded ?? true)) {
               if (FFAppState().positions.isNotEmpty) {
                 setState(() {
                   FFAppState().removeAtIndexFromPositions(0);
                 });
               }
-            } 
-            
-            else {
+            } else {
               setState(() {
                 _model.index = _model.index + 1;
               });
@@ -1338,26 +1962,22 @@ class _HomeWidgetState extends State<HomeWidget> {
         _model.botaoRota = true;
 
         var progressEvent = e.data as RouteProgressEvent;
-        if (progressEvent.currentStepInstruction != null) {
-        }
+        if (progressEvent.currentStepInstruction != null) {}
         break;
 
       case MapBoxEvent.route_building:
         break;
 
       case MapBoxEvent.route_built:
-        setState(() {
-        });
+        setState(() {});
         break;
 
       case MapBoxEvent.route_build_failed:
-        setState(() {
-        });
+        setState(() {});
         break;
 
       case MapBoxEvent.navigation_running:
-        setState(() {
-        });
+        setState(() {});
         break;
 
       case MapBoxEvent.on_arrival: //Chegou ao destino
@@ -1389,115 +2009,73 @@ class _HomeWidgetState extends State<HomeWidget> {
     setState(() {});
   }
 
-  void showConfirmConsentDialog(BuildContext bcontext)
-  {
+  void showConfirmConsentDialog(BuildContext bcontext) {
     showDialog(
       context: bcontext,
       barrierDismissible: false, // Prevents dialog from closing on tap outside
       builder: (bcontext) {
         return PopScope(
-          canPop: false, 
+          canPop: false,
           child: AlertDialog(
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
                   RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Para continuar utilizando este aplicativo, é necessário aceitar nossos',
-                          style: TextStyle(color: Colors.black, fontSize: 16.0),
-                        ),
-
-                        TextSpan(
-                        text: ' Termos de Uso ',
-                        style: const TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () { launchUrl(Uri(scheme: 'https', host: '1drv.ms', path: 'w/s!Ag-lHaRe-G-gguV-TkfoOYCqnIsSGw'));},
-                        ),
-
-                        const TextSpan(
-                          text: 'e nossa',
-                          style: TextStyle(color: Colors.black, fontSize: 16.0),
-                        ),
-
-                        TextSpan(
-                        text: ' Política de Privacidade',
-                        style: const TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () { launchUrl(Uri(scheme: 'https', host: '1drv.ms', path: 'w/s!Ag-lHaRe-G-gguZJMYQcMsih2pBJ8A'));},
-                        ),
-
-                        const TextSpan(
-                          text: '. \n\nConfirme que você leu e concorda com as condições acima.',
-                          style: TextStyle(color: Colors.black, fontSize: 16.0),
-                        ),
-                      ]
-                    )
-                  ),
+                      text: TextSpan(children: [
+                    const TextSpan(
+                      text:
+                          'Para continuar utilizando este aplicativo, é necessário aceitar nossos',
+                      style: TextStyle(color: Colors.black, fontSize: 16.0),
+                    ),
+                    TextSpan(
+                      text: ' Termos de Uso ',
+                      style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launchUrl(Uri(
+                              scheme: 'https',
+                              host: '1drv.ms',
+                              path: 'w/s!Ag-lHaRe-G-gguV-TkfoOYCqnIsSGw'));
+                        },
+                    ),
+                    const TextSpan(
+                      text: 'e nossa',
+                      style: TextStyle(color: Colors.black, fontSize: 16.0),
+                    ),
+                    TextSpan(
+                      text: ' Política de Privacidade',
+                      style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launchUrl(Uri(
+                              scheme: 'https',
+                              host: '1drv.ms',
+                              path: 'w/s!Ag-lHaRe-G-gguZJMYQcMsih2pBJ8A'));
+                        },
+                    ),
+                    const TextSpan(
+                      text:
+                          '. \n\nConfirme que você leu e concorda com as condições acima.',
+                      style: TextStyle(color: Colors.black, fontSize: 16.0),
+                    ),
+                  ])),
                 ],
               ),
             ),
             actions: <Widget>[
               Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FFButtonWidget(
-                    onPressed: () {
-                      setState(() {
-                        FFAppState().acceptedTermsAndPrivacy = false;
-                        FFAppState().viagemDisponivel = RouteStruct();
-                        FFAppState().cpf = '';
-                        FFAppState().routeSelected = RouteStruct();
-                      });
-
-                      Navigator.of(context).pop(); // Close the dialog
-                      context.pushReplacementNamed('codigoAcesso'); // Close the dialog
-                    },
-                    text: 'Discordo',
-                    options: FFButtonOptions(
-                      width: 125.0,
-                      height: 50.0,
-                      padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      color: FlutterFlowTheme.of(context).alternate,
-                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                            fontSize: 14.0,
-                          ),
-                      elevation: 0.0,
-                      borderSide: const BorderSide(
-                        color: Color(0xFFBF3139),
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  FFButtonWidget(
-                    onPressed: () async {
-                      var termsAcceptance = await APIsPigmanGroup.setTermsAcceptanceCall.call(
-                        cpf: FFAppState().cpf,
-                        termsAccepted: true,
-                      );
-
-                      if(!termsAcceptance.succeeded)
-                      {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar( 
-                            content: const Text(
-                              'Houve um erro durante esta requisição. Tente novamente.',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            duration: const Duration(milliseconds: 4000),
-                            backgroundColor: FlutterFlowTheme.of(context).error,
-                          )
-                        );
-
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FFButtonWidget(
+                      onPressed: () {
                         setState(() {
                           FFAppState().acceptedTermsAndPrivacy = false;
                           FFAppState().viagemDisponivel = RouteStruct();
@@ -1506,39 +2084,94 @@ class _HomeWidgetState extends State<HomeWidget> {
                         });
 
                         Navigator.of(context).pop(); // Close the dialog
-                        context.pushReplacementNamed('codigoAcesso'); // Close the dialog
-                      }
-
-                      else {
-                        setState(() {
-                          FFAppState().acceptedTermsAndPrivacy = true;
-                        });
-
-                        Navigator.of(context).pop(); // Close the dialog
-                      }
-                    },
-                    text: 'Li e concordo',
-                    options: FFButtonOptions(
-                      width: 125.0,
-                      height: 50.0,
-                      padding: const EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      color: FlutterFlowTheme.of(context).tertiary,
-                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                            fontSize: 14.0,
-                          ),
-                      elevation: 0.0,
-                      borderSide: const BorderSide(
-                        color:  Color(0xFF298032),
-                        width: 2.0,
+                        context.pushReplacementNamed(
+                            'codigoAcesso'); // Close the dialog
+                      },
+                      text: 'Discordo',
+                      options: FFButtonOptions(
+                        width: 125.0,
+                        height: 50.0,
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            8.0, 0.0, 8.0, 0.0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                            0.0, 0.0, 0.0, 0.0),
+                        color: FlutterFlowTheme.of(context).alternate,
+                        textStyle:
+                            FlutterFlowTheme.of(context).titleSmall.override(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                        elevation: 0.0,
+                        borderSide: const BorderSide(
+                          color: Color(0xFFBF3139),
+                          width: 2.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                  ),
-                ]
-              ),
+                    FFButtonWidget(
+                      onPressed: () async {
+                        var termsAcceptance =
+                            await APIsPigmanGroup.setTermsAcceptanceCall.call(
+                          cpf: FFAppState().cpf,
+                          termsAccepted: true,
+                        );
+
+                        if (!termsAcceptance.succeeded) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: const Text(
+                              'Houve um erro durante esta requisição. Tente novamente.',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            duration: const Duration(milliseconds: 4000),
+                            backgroundColor: FlutterFlowTheme.of(context).error,
+                          ));
+
+                          setState(() {
+                            FFAppState().acceptedTermsAndPrivacy = false;
+                            FFAppState().viagemDisponivel = RouteStruct();
+                            FFAppState().cpf = '';
+                            FFAppState().routeSelected = RouteStruct();
+                          });
+
+                          Navigator.of(context).pop(); // Close the dialog
+                          context.pushReplacementNamed(
+                              'codigoAcesso'); // Close the dialog
+                        } else {
+                          setState(() {
+                            FFAppState().acceptedTermsAndPrivacy = true;
+                          });
+
+                          Navigator.of(context).pop(); // Close the dialog
+                        }
+                      },
+                      text: 'Li e concordo',
+                      options: FFButtonOptions(
+                        width: 125.0,
+                        height: 50.0,
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            8.0, 0.0, 8.0, 0.0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                            0.0, 0.0, 0.0, 0.0),
+                        color: FlutterFlowTheme.of(context).tertiary,
+                        textStyle:
+                            FlutterFlowTheme.of(context).titleSmall.override(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                        elevation: 0.0,
+                        borderSide: const BorderSide(
+                          color: Color(0xFF298032),
+                          width: 2.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                  ]),
             ],
           ),
         );
@@ -1546,91 +2179,100 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  void showRemoveConsentDialog(BuildContext bcontext)
-  {
+  void showRemoveConsentDialog(BuildContext bcontext) {
     showDialog(
       context: bcontext,
       builder: (bcontext) {
         return AlertDialog(
           title: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [ 
-              InkWell(
-                splashColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onTap: () {
-                  Navigator.of(bcontext).pop();
-                },
-                child: const Icon(
-                  Icons.close_rounded,
-                  color: Color(0xFF2D2D6B),
-                  size: 28.0,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  splashColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    Navigator.of(bcontext).pop();
+                  },
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Color(0xFF2D2D6B),
+                    size: 28.0,
+                  ),
                 ),
-              ),]
-          ),
+              ]),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: 'Ao remover a concordância com os',
-                        style: TextStyle(color: Colors.black, fontSize: 16.0),
-                      ),
-
-                      TextSpan(
-                      text: ' Termos de Uso ',
-                      style: const TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () { launchUrl(Uri(scheme: 'https', host: '1drv.ms', path: 'w/s!Ag-lHaRe-G-gguV-TkfoOYCqnIsSGw'));},
-                      ),
-
-                      const TextSpan(
-                        text: 'e com a',
-                        style: TextStyle(color: Colors.black, fontSize: 16.0),
-                      ),
-
-                      TextSpan(
-                      text: ' Política de Privacidade ',
-                      style: const TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () { launchUrl(Uri(scheme: 'https', host: '1drv.ms', path: 'w/s!Ag-lHaRe-G-gguZJMYQcMsih2pBJ8A'));},
-                      ),
-
-                      const TextSpan(
-                        text: 'você não poderá continuar utilizando este aplicativo. \n\nDeseja remover a concordância com as condições acima?',
-                        style: TextStyle(color: Colors.black, fontSize: 16.0),
-                      ),
-                    ]
-                  )
-                ),
+                    text: TextSpan(children: [
+                  const TextSpan(
+                    text: 'Ao remover a concordância com os',
+                    style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  ),
+                  TextSpan(
+                    text: ' Termos de Uso ',
+                    style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        launchUrl(Uri(
+                            scheme: 'https',
+                            host: '1drv.ms',
+                            path: 'w/s!Ag-lHaRe-G-gguV-TkfoOYCqnIsSGw'));
+                      },
+                  ),
+                  const TextSpan(
+                    text: 'e com a',
+                    style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  ),
+                  TextSpan(
+                    text: ' Política de Privacidade ',
+                    style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        launchUrl(Uri(
+                            scheme: 'https',
+                            host: '1drv.ms',
+                            path: 'w/s!Ag-lHaRe-G-gguZJMYQcMsih2pBJ8A'));
+                      },
+                  ),
+                  const TextSpan(
+                    text:
+                        'você não poderá continuar utilizando este aplicativo. \n\nDeseja remover a concordância com as condições acima?',
+                    style: TextStyle(color: Colors.black, fontSize: 16.0),
+                  ),
+                ])),
               ],
             ),
           ),
           actions: <Widget>[
             Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                  child: FFButtonWidget(
-                    onPressed: () async {
-                      var termsAcceptance = await APIsPigmanGroup.setTermsAcceptanceCall.call(
-                        cpf: FFAppState().cpf,
-                        termsAccepted: false,
-                      );
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                        16.0, 0.0, 16.0, 0.0),
+                    child: FFButtonWidget(
+                      onPressed: () async {
+                        var termsAcceptance =
+                            await APIsPigmanGroup.setTermsAcceptanceCall.call(
+                          cpf: FFAppState().cpf,
+                          termsAccepted: false,
+                        );
 
-                      if(!termsAcceptance.succeeded)
-                      {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar( 
+                        if (!termsAcceptance.succeeded) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: const Text(
                               'Houve um erro durante esta requisição. Tente novamente.',
                               style: TextStyle(
@@ -1639,45 +2281,45 @@ class _HomeWidgetState extends State<HomeWidget> {
                             ),
                             duration: const Duration(milliseconds: 4000),
                             backgroundColor: FlutterFlowTheme.of(context).error,
-                          )
-                        );
-                      }
+                          ));
+                        } else {
+                          setState(() {
+                            FFAppState().acceptedTermsAndPrivacy = false;
+                            FFAppState().viagemDisponivel = RouteStruct();
+                            FFAppState().cpf = '';
+                            FFAppState().routeSelected = RouteStruct();
+                          });
 
-                      else {
-                        setState(() {
-                          FFAppState().acceptedTermsAndPrivacy = false;
-                          FFAppState().viagemDisponivel = RouteStruct();
-                          FFAppState().cpf = '';
-                          FFAppState().routeSelected = RouteStruct();
-                        });
-
-                        Navigator.of(context).pop(); // Close the dialog
-                        context.pushReplacementNamed('codigoAcesso'); // Close the dialog
-                      }
-                    },
-                    text: 'Remover concordância',
-                    options: FFButtonOptions(
-                      width: 250.0,
-                      height: 50.0,
-                      padding: const EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                      iconPadding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                      color: FlutterFlowTheme.of(context).alternate,
-                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                        fontFamily: 'Poppins',
-                        color: Colors.white,
-                        fontSize: 14.0,
+                          Navigator.of(context).pop(); // Close the dialog
+                          context.pushReplacementNamed(
+                              'codigoAcesso'); // Close the dialog
+                        }
+                      },
+                      text: 'Remover concordância',
+                      options: FFButtonOptions(
+                        width: 250.0,
+                        height: 50.0,
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            16.0, 0.0, 16.0, 0.0),
+                        iconPadding: const EdgeInsetsDirectional.fromSTEB(
+                            0.0, 0.0, 0.0, 0.0),
+                        color: FlutterFlowTheme.of(context).alternate,
+                        textStyle:
+                            FlutterFlowTheme.of(context).titleSmall.override(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                        elevation: 0.0,
+                        borderSide: const BorderSide(
+                          color: Color(0xFFBF3139),
+                          width: 2.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      elevation: 0.0,
-                      borderSide: const BorderSide(
-                        color: Color(0xFFBF3139),
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                  ),
-                )
-              ]
-            ),
+                  )
+                ]),
           ],
         );
       },

@@ -299,9 +299,9 @@ class FFRoute {
                   color: Colors.white,
                   child: Center(
                     child: Image.asset(
-                      'assets/images/image_4.png',
+                      'assets/images/pigma_(1)_1.png',
                       width: 200.0,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 )
@@ -333,7 +333,6 @@ class FFRoute {
         },
         routes: routes,
       );
-
 }
 
 class TransitionInfo {
@@ -349,7 +348,8 @@ class TransitionInfo {
   final Duration duration;
   final Alignment? alignment;
 
-  static TransitionInfo appDefault() => const TransitionInfo(hasTransition: false);
+  static TransitionInfo appDefault() =>
+      const TransitionInfo(hasTransition: false);
 }
 
 class RootPageContext {
