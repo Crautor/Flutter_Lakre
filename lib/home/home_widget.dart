@@ -334,7 +334,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
                                     await launchURL(
-                                        'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                        'https://wa.me/5545920018469?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Pigma');
                                   },
                                   child: FaIcon(
                                     FontAwesomeIcons.whatsapp,
@@ -397,7 +397,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                       FFButtonWidget(
                                         onPressed: () async {
                                           await launchURL(
-                                              'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                              'https://wa.me/5545920018469?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Pigma');
                                         },
                                         text: 'Contatar gestor',
                                         icon: const FaIcon(
