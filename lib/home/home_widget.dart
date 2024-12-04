@@ -193,37 +193,36 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Future<void> _getLocation() async {
     try {
-      // bool serviceEnabled = await location.serviceEnabled();
+      bool serviceEnabled = await location.serviceEnabled();
 
-      // if (!serviceEnabled) {
-      //   serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
 
-      //   if (!serviceEnabled) {
-      //     hasLocationIssues = true;
-      //   }
-      // }
+        if (!serviceEnabled) {
+          hasLocationIssues = true;
+        }
+      }
 
-      // PermissionStatus permissionGranted = await location.hasPermission();
+      PermissionStatus permissionGranted = await location.hasPermission();
 
-      // if (permissionGranted == PermissionStatus.denied) {
-      //   permissionGranted = await location.requestPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
 
-      //   if (permissionGranted != PermissionStatus.granted) {
-      //     hasLocationIssues = true;
-      //   }
-      // }
+        if (permissionGranted != PermissionStatus.granted) {
+          hasLocationIssues = true;
+        }
+      }
 
-      // if(!hasLocationIssues)
-      // {
-      var currentLocation = await location.getLocation();
+      if (!hasLocationIssues) {
+        var currentLocation = await location.getLocation();
 
-      setState(() {
-        latitude = currentLocation.latitude;
-        longitude = currentLocation.longitude;
-        FFAppState().latLngDriver =
-            LatLng(currentLocation.latitude!, currentLocation.longitude!);
-      });
-      // }
+        setState(() {
+          latitude = currentLocation.latitude;
+          longitude = currentLocation.longitude;
+          FFAppState().latLngDriver =
+              LatLng(currentLocation.latitude!, currentLocation.longitude!);
+        });
+      }
     } catch (e) {
       hasLocationIssues = true;
     }
@@ -334,7 +333,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
                                     await launchURL(
-                                        'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                        'https://wa.me/+5545920018469?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Pigma');
                                   },
                                   child: FaIcon(
                                     FontAwesomeIcons.whatsapp,
@@ -397,7 +396,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                       FFButtonWidget(
                                         onPressed: () async {
                                           await launchURL(
-                                              'https://wa.me/5545999943008?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Lakre');
+                                              'https://wa.me/+5545920018469?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20meu%20aplicativo%20Pigma');
                                         },
                                         text: 'Contatar gestor',
                                         icon: const FaIcon(
@@ -2089,7 +2088,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       },
                       text: 'Discordo',
                       options: FFButtonOptions(
-                        width: 125.0,
+                        width: 115.0,
                         height: 50.0,
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             8.0, 0.0, 8.0, 0.0),
@@ -2150,7 +2149,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       },
                       text: 'Li e concordo',
                       options: FFButtonOptions(
-                        width: 125.0,
+                        width: 115.0,
                         height: 50.0,
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             8.0, 0.0, 8.0, 0.0),
@@ -2297,7 +2296,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       },
                       text: 'Remover concordância',
                       options: FFButtonOptions(
-                        width: 250.0,
+                        width: 200.0,
                         height: 50.0,
                         padding: const EdgeInsetsDirectional.fromSTEB(
                             16.0, 0.0, 16.0, 0.0),
