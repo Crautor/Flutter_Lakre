@@ -62,7 +62,7 @@ class _SplashWidgetState extends State<SplashWidget> {
                 ), //loading
               ),
               const Spacer(),
-              const Text("v2.0.1", // Version Code
+              const Text("v2.0.4", // Version Code
                   style: TextStyle(
                     fontSize: 24,
                     color: Colors.grey,

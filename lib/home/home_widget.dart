@@ -440,7 +440,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                                           FontAwesomeIcons.arrowsRotate,
                                         ),
                                         options: FFButtonOptions(
-                                          width: 175.0,
+                                          width: 165.0,
                                           height: 50.0,
                                           padding: const EdgeInsetsDirectional
                                               .fromSTEB(8.0, 0.0, 8.0, 0.0),
